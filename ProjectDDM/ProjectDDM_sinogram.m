@@ -32,3 +32,5 @@ figure(2);
 imshow(sgram,[]);
 title('Sinogram for Shepp-Logan Phantom');
 save('data/sinogramPhantom.mat', 'sgram');
+
+VerifyPhantomSinogram

@@ -62,7 +62,8 @@ for row = params.rows % index of image row or column
                 end
                 lastPx = allBounds(m,4);
                 if detFound > 0
-                    weight = allBounds(m,6)/denom;
+                    correction = abs(cosRay(detFound) + cosRay(detFound+1))/2;
+                    weight = allBounds(m,6)/(denom*correction);
                     detVal(detFound) = detVal(detFound) + weight*lastPx;
                 end
             case 1
@@ -71,13 +72,14 @@ for row = params.rows % index of image row or column
                 end
                 denom = allBounds(m,3);
                 detFound = allBounds(m,2);
-                weight = allBounds(m,6)/denom;
+                correction = abs(cosRay(detFound) + cosRay(detFound+1))/2;
+                weight = allBounds(m,6)/(denom*correction);
                 detVal(detFound) = detVal(detFound) + weight*lastPx;
         end
     end
 end
-lenCR = length(cosRay);
-cosRay = abs(cosRay(1:lenCR-1) + cosRay(2:lenCR))/2;
-detVal = detVal./cosRay;
+% lenCR = length(cosRay);
+% cosRay = abs(cosRay(1:lenCR-1) + cosRay(2:lenCR))/2;
+% detVal = detVal./cosRay;
 
 end
