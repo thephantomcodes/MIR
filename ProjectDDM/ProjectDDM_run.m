@@ -26,35 +26,35 @@ xlim([0,params.detNum]);
 grid on;
 
 
-params.deg = 0;
+params.rotations = 0;
 [sgram0] = ProjectDDM(params, img);
 plot(sgram0, 'b');
 
-params.deg = 15;
+params.rotations = 15;
 sgram15 = ProjectDDM(params, img);
 plot(sgram15, 'r');
 
-params.deg = 30;
+params.rotations = 30;
 sgram30 = ProjectDDM(params, img);
 plot(sgram30, 'g');
 
-params.deg = 44;
+params.rotations = 44;
 sgram44 = ProjectDDM(params, img);
 plot(sgram44, 'm');
 
-params.deg = 46;
+params.rotations = 46;
 sgram46 = ProjectDDM(params, img);
 plot(sgram46, 'm');
 
-params.deg = 60;
+params.rotations = 60;
 sgram60 = ProjectDDM(params, img);
 plot(sgram60, 'g');
 
-params.deg = 75;
+params.rotations = 75;
 sgram75 = ProjectDDM(params, img);
 plot(sgram75, 'r');
 
-params.deg = 90;
+params.rotations = 90;
 sgram90 = ProjectDDM(params, img);
 plot(sgram90, 'b');
 

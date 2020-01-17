@@ -1,5 +1,8 @@
 function [ detVal ] = ProjectDDM( params, img )
 
+detVal = zeros(length(params.rotations),params.detNum);
+
+for rotation = 1:length(params.rotations)
 src = [0, params.scanRad];
 detBounds = CalcDetBounds(params.scanRad, params.detLen, params.detNum);
 
@@ -12,13 +15,15 @@ pxBounds(:,5) = 0;
 pxCenters = CalcPxCenters(params.pxNum, params.phantomRad);
 
 
+params.deg = params.rotations(rotation);
+
 ang = params.deg*pi/180;
 rotMat = [cos(ang) sin(ang); -sin(ang) cos(ang)];
 
 detBounds = (rotMat*detBounds')';
 src = (rotMat*src')';
 
-detVal = zeros(1,params.detNum);
+%detVal = zeros(1,params.detNum);
 
 for row = params.rows % index of image row or column
     projBounds = ProjectDetBounds( detBounds, src, 0, params.deg );
@@ -63,7 +68,7 @@ for row = params.rows % index of image row or column
                 lastPx = allBounds(m,4);
                 if detFound > 0
                     weight = allBounds(m,6)/(denom);
-                    detVal(detFound) = detVal(detFound) + weight*lastPx;
+                    detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
                 end
             case 1
                 if allBounds(m,1) >= lastBound
@@ -72,7 +77,7 @@ for row = params.rows % index of image row or column
                 detFound = allBounds(m,2);
                 denom = allBounds(m,3)*abs(cosRay(detFound) + cosRay(detFound+1))/2;
                 weight = allBounds(m,6)/(denom);
-                detVal(detFound) = detVal(detFound) + weight*lastPx;
+                detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
         end
     end
 end
@@ -80,4 +85,5 @@ end
 % cosRay = abs(cosRay(1:lenCR-1) + cosRay(2:lenCR))/2;
 % detVal = detVal./cosRay;
 
+end
 end
