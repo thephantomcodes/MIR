@@ -2,8 +2,8 @@ clear;
 
 params.scanRad = 50;
 params.detLen = 40;
-params.detNum = 256;
-params.pxNum = 256;
+params.detNum = 32;
+params.pxNum = 32;
 params.phantomRad = 10;
 params.pxWidth = 2*params.phantomRad/params.pxNum;
 params.rows = 1:params.pxNum;

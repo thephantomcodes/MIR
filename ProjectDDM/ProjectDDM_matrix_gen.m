@@ -1,23 +1,19 @@
-%----------------------
-% Perform DDM projection of SLP and uniform disc
-%----------------------
-
 clear;
 addpath('../toolbox');
 
 params.scanRad = 50;
 params.detLen = 40;
-params.detNum = 256;
-params.viewNum = 256;
-params.pxNum = 256;
+params.detNum = 200;
+params.viewNum = 200;
+params.pxNum = 200;
 params.phantomRad = 10;
 params.rows = 1:params.pxNum;
 params.fieldOfView = 360;
 
 params.rotations = 0:params.fieldOfView/params.viewNum:params.fieldOfView-1/params.viewNum;
-%disp(params);
+disp(params);
 
-projDisc = 1;
+projDisc = 0;
 
 if projDisc == 1
     tic
@@ -39,4 +35,12 @@ title('Sinogram for Shepp-Logan Phantom');
 save('data/sinogramPhantom.mat', 'sgram');
 toc
 
-VerifyPhantomSinogram
+tic
+figure(3);
+A = ProjectDDM_matrix(params);
+b = A*img(:);
+b = reshape(b,params.detNum, length(params.rotations))';
+imshow(b,[]);
+toc
+
+%VerifyPhantomSinogram
