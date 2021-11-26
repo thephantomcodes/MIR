@@ -15,7 +15,7 @@ params.rows = 1:params.pxNum;
 params.fieldOfView = 360;
 
 params.rotations = 0:params.fieldOfView/params.viewNum:params.fieldOfView-1/params.viewNum;
-%disp(params);
+disp(params);
 
 projDisc = 1;
 

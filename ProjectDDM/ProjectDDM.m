@@ -1,6 +1,6 @@
 function [ detVal ] = ProjectDDM( params, img )
 
-detVal = zeros(length(params.rotations),params.detNum);
+detVal = zeros(params.detNum, length(params.rotations));
 pxBoundsFixed = CalcPxBounds(params.pxNum, params.phantomRad)';
 
 for rotation = 1:length(params.rotations)
@@ -66,7 +66,7 @@ for row = params.rows % index of image row or column
                 lastPx = allBounds(m,4);
                 if detFound > 0
                     weight = allBounds(m,6)/(denom);
-                    detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
+                    detVal(detFound,rotation) = detVal(detFound,rotation) + weight*lastPx;
                 end
             case 1
                 if allBounds(m,1) >= lastBound
@@ -75,7 +75,7 @@ for row = params.rows % index of image row or column
                 detFound = allBounds(m,2);
                 denom = allBounds(m,3)*abs(cosRay(detFound) + cosRay(detFound+1))/2;
                 weight = allBounds(m,6)/(denom);
-                detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
+                detVal(detFound,rotation) = detVal(detFound,rotation) + weight*lastPx;
         end
     end
 end

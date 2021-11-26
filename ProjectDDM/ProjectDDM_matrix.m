@@ -1,7 +1,7 @@
 function [ A ] = ProjectDDM_matrix( params )
 
 A = zeros(length(params.rotations)*params.detNum, params.pxNum^2);
-detVal = zeros(length(params.rotations),params.detNum);
+% detVal = zeros(length(params.rotations),params.detNum);
 
 for rotation = 1:length(params.rotations)
 src = [0, params.scanRad];
@@ -72,7 +72,7 @@ for row = params.rows % index of image row or column
                 lastPx = allBounds(m,4);
                 if detFound > 0
                     weight = allBounds(m,6)/(denom);
-                    detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
+%                     detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
                     A((rotation-1)*params.detNum+detFound,lastPx) = weight;
                 end
             case 1
@@ -82,7 +82,7 @@ for row = params.rows % index of image row or column
                 detFound = allBounds(m,2);
                 denom = allBounds(m,3)*abs(cosRay(detFound) + cosRay(detFound+1))/2;
                 weight = allBounds(m,6)/(denom);
-                detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
+%                 detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
                 if lastPx > 0
                     A((rotation-1)*params.detNum+detFound,lastPx) = weight;
                 end
