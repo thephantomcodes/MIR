@@ -1,14 +1,17 @@
-function [ img ] = BackProjectDDM( params, detVal )
+function [ img ] = BackProjectDDM( params, sgram )
 
-img = zeros(params.pxNum)
-pxBoundsFixed = CalcPxBounds(params.pxNum, params.phantomRad)';
+img = zeros(params.pxNum^2, 1);
+isPxBound = 0;
+isDetBound = 1;
 
 for rotation = 1:length(params.rotations)
+A = zeros(params.pxNum^2, params.detNum);
 src = [0, params.scanRad];
 detBounds = CalcDetBounds(params.scanRad, params.detLen, params.detNum);
 
+pxBoundsFixed = CalcPxBounds(params.pxNum, params.phantomRad)';
 pxBounds = zeros(params.pxNum+1,5);
-pxBounds(:,2) = 1:params.pxNum+1;%%
+pxBounds(:,2) = 1:params.pxNum+1;
 pxBounds(:,3) = [0; abs(diff(pxBounds(:,1)))];
 pxBounds(:,4) = zeros(params.pxNum+1,1);
 pxBounds(:,5) = 0;
@@ -26,31 +29,36 @@ src = (rotMat*src')';
 %detVal = zeros(1,params.detNum);
 
 for row = params.rows % index of image row or column
-    projDetBounds = ProjectDetBounds( detBounds, src, 0, params.deg );
-    if projDetBounds(1) < projDetBounds(2)
-        projDetBounds(:,2) = 1:params.detNum+1;
-        projDetBounds(:,3) = [abs(diff(projDetBounds(:,1))); 0];
+    projBounds = ProjectDetBounds( detBounds, src, 0, params.deg );
+    if projBounds(1) < projBounds(2)
+        projBounds(:,2) = 1:params.detNum+1;
+        projBounds(:,3) = [abs(diff(projBounds(:,1))); 0];
     else
-        projDetBounds(:,2) = 0:params.detNum;
-        projDetBounds(:,3) = [0;abs(diff(projDetBounds(:,1)))];
+        projBounds(:,2) = 0:params.detNum;
+        projBounds(:,3) = [0;abs(diff(projBounds(:,1)))];
     end
     if params.deg<=45 || params.deg>=315 || (params.deg>=135 && params.deg<=225)
+        % Take row if close to x-axis
         pxCoords = [pxBoundsFixed, repmat(pxCenters(row),params.pxNum+1,1)];
         pxBounds(:,1) = ProjectDetBounds( pxCoords, src, 0, params.deg );
-        cosRay = src(2)./sqrt((projDetBounds(:,1) - src(1)).^2 + src(2).^2)';
-        pxBounds(:,4) = [img(row,:),0];
+        cosRay = src(2)./sqrt((projBounds(:,1) - src(1)).^2 + src(2).^2)';
+%         pxVals = img(row,:);
+        pxBounds(:,4) = row + (pxBounds(:,2)-1)*params.pxNum;
+%         pxBounds(:,4) = (row-1)*pxBounds(:,2);
     else
+        % Take column if close to y-axis
         pxCoords = [repmat(pxCenters(row),params.pxNum+1,1), pxBoundsFixed];
         pxBounds(:,1) = ProjectDetBounds( pxCoords, src, 0, params.deg );
-        cosRay = src(1)./sqrt((projDetBounds(:,1) - src(2)).^2 + src(1).^2)';
-        pxBounds(:,4) = [img(:,row)',0];
+        cosRay = src(1)./sqrt((projBounds(:,1) - src(2)).^2 + src(1).^2)';
+%         pxVals = img(:,row)';
+        pxBounds(:,4) = (row-1)*params.pxNum + pxBounds(:,2);
     end
     pxBounds(:,3) = [0; abs(diff(pxBounds(:,1)))];
-    projDetBounds(:,4) = 0;
-    projDetBounds(:,5) = 1;
-    lastBound = max(projDetBounds(:,1));
+    projBounds(:,4) = 0;
+    projBounds(:,5) = isDetBound;
+    lastBound = max(projBounds(:,1));
         
-    allBounds = sortrows([projDetBounds;pxBounds],1);
+    allBounds = sortrows([projBounds;pxBounds],1);
     allBounds(:,6) = [diff(allBounds(:,1));0];
     
     detFound = 0;
@@ -59,29 +67,34 @@ for row = params.rows % index of image row or column
     
     for m=1:length(allBounds)
         switch allBounds(m,5)
-            case 0
+            case isPxBound
                 if allBounds(m,2) > params.pxNum
                    break 
                 end
                 lastPx = allBounds(m,4);
                 if detFound > 0
                     weight = allBounds(m,6)/(denom);
-                    detVal(detFound,rotation) = detVal(detFound,rotation) + weight*lastPx;
+%                     detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
+                    A(lastPx,detFound) = weight;
                 end
-            case 1
+            case isDetBound
                 if allBounds(m,1) >= lastBound
                     break
                 end
                 detFound = allBounds(m,2);
                 denom = allBounds(m,3)*abs(cosRay(detFound) + cosRay(detFound+1))/2;
                 weight = allBounds(m,6)/(denom);
-                detVal(detFound,rotation) = detVal(detFound,rotation) + weight*lastPx;
+%                 detVal(rotation,detFound) = detVal(rotation,detFound) + weight*lastPx;
+                if lastPx > 0
+                    A(lastPx,detFound) = weight;
+                end
         end
     end
 end
 % lenCR = length(cosRay);
 % cosRay = abs(cosRay(1:lenCR-1) + cosRay(2:lenCR))/2;
 % detVal = detVal./cosRay;
-
+img = img + A*sgram(:, rotation);
 end
+img = reshape(img,params.pxNum,params.pxNum);
 end
