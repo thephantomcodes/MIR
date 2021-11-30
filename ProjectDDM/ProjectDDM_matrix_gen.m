@@ -13,19 +13,6 @@ rotations = 0:params.fieldOfView/params.viewNum:params.fieldOfView-1/params.view
 params.rotations = rotations;
 disp(params);
 
-projDisc = 0;
-
-if projDisc == 1
-    tic
-    img = MakeDisc(params.pxNum,params.pxNum);
-    sgram = ProjectDDM(params, img);
-    figure(1);
-    imshow(sgram,[]);
-    title('Sinogram for uniform disc');
-    save('data/sinogramDisc.mat', 'sgram');
-    toc
-end
-
 tic
 img = phantom(params.pxNum);
 sgram = ProjectDDM(params, img);
@@ -35,13 +22,17 @@ sgram = ProjectDDM(params, img);
 % save('data/sinogramPhantom.mat', 'sgram');
 toc
 
+tic
 A = ProjectDDM_matrix(params);
+sgram2 = A*img(:);
 img2 = reshape(A'*sgram(:),params.pxNum,params.pxNum);
-imshow(img2,[]);
+%imshow(img2,[]);
 Srow_full = sum(A,2);
 Scol_full = sum(A,1);
 Srow = zeros(params.pxNum^2,1);
 Scol = zeros(1, params.detNum*params.viewNum);
+disp(max(sgram(:)-sgram2(:)));
+toc
 
 tic
 b = zeros(size(sgram));
@@ -53,8 +44,16 @@ for idx = 1:params.viewNum
     %b(idx,:) = A*img(:);
     %b(idx) = reshape(b,params.detNum, length(params.rotations))';
 end
-disp([min(Scol_full - Scol), max(Scol_full - Scol)]);
-disp([min(Srow_full - Srow), max(Srow_full - Srow)]);
+% disp([min(Scol_full - Scol), max(Scol_full - Scol)]);
+% disp([min(Srow_full - Srow), max(Srow_full - Srow)]);
+toc
+
+tic
+params.rotations = rotations;
+img3 = BackProjectDDM(params, sgram);
+figure(3);
+imshow(img3,[]);
+disp(max(img2(:)-img3(:)));
 %figure(3);
 %imshow(b,[]);
 %max(sgram(:)-b(:))
