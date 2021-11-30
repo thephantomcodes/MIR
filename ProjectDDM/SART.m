@@ -9,13 +9,12 @@ Scol = zeros(1, params.detNum*params.viewNum);
 for idx = 1:params.viewNum
     params.rotations = rotations(idx);
     A = ProjectDDM_matrix(params);
-    Scol = Scol + 1./max(0.00001,sum(A,1));
-    Srow(1+(idx-1)*params.detNum:idx*params.detNum, :) = 1./max(0.00001,sum(A,2));
+    Scol = Scol + sum(A,1);
+    Srow(1+(idx-1)*params.detNum:idx*params.detNum, :) = sum(A,2);
 end
-Srow = diag(Srow);
-Scol = diag(Scol);
+Srow = (1./Srow);
+Scol = reshape((1./Scol), params.detNum*params.viewNum, 1);
 params.rotations = rotations;
-    
 sgram = sgram(:);
 img = zeros(params.pxNum);
 relaxParam = 1.0;
@@ -23,11 +22,14 @@ relaxParam = 1.0;
 for x=1:Iterations
     tic
     img_err = ProjectDDM(params, img);
-    img_err = reshape(Srow*(img_err(:) - sgram),params.viewNum,params.detNum);
+    img_err = img_err(:) - sgram;
+    img_err = Srow.*img_err;
+    img_err = reshape(img_err,params.viewNum,params.detNum);
     img_err = BackProjectDDM(params, img_err);
-    img_err = relaxParam*Scol*img_err(:);
-    img = img + reshape(img_err,params.pxNum,params.pxNum);
+    img_err = relaxParam.*Scol.*img_err(:);
+    img = img - reshape(img_err,params.pxNum,params.pxNum);
     imshow(img,[]);
+    title("SART Iteration: " + string(x));
     toc
 end
 end
