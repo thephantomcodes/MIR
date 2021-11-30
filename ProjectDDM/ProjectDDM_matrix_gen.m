@@ -31,6 +31,7 @@ Srow_full = sum(A,2);
 Scol_full = sum(A,1);
 Srow = zeros(params.pxNum^2,1);
 Scol = zeros(1, params.detNum*params.viewNum);
+disp("sgram projection: matrix vs inline.");
 disp(max(sgram(:)-sgram2(:)));
 toc
 
@@ -44,8 +45,9 @@ for idx = 1:params.viewNum
     %b(idx,:) = A*img(:);
     %b(idx) = reshape(b,params.detNum, length(params.rotations))';
 end
-% disp([min(Scol_full - Scol), max(Scol_full - Scol)]);
-% disp([min(Srow_full - Srow), max(Srow_full - Srow)]);
+disp("matrix row and col sums: full vs partial.");
+disp([min(Scol_full - Scol), max(Scol_full - Scol)]);
+disp([min(Srow_full - Srow), max(Srow_full - Srow)]);
 toc
 
 tic
@@ -53,6 +55,7 @@ params.rotations = rotations;
 img3 = BackProjectDDM(params, sgram);
 figure(3);
 imshow(img3,[]);
+disp("sgram back projection: matrix vs inline:");
 disp(max(img2(:)-img3(:)));
 %figure(3);
 %imshow(b,[]);
