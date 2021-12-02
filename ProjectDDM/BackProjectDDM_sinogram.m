@@ -34,6 +34,9 @@ end
 tic
 img = phantom(params.pxNum);
 sgram = ProjectDDM(params, img);
+toc
+
+tic
 img = BackProjectDDM(params, sgram);
 figure(2);
 imshow(img,[]);

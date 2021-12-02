@@ -18,5 +18,5 @@ img = phantom(params.pxNum);
 sgram = ProjectDDM(params, img);
 toc
 
-img_sart = SART(params, sgram, 100);
+img_sart = SART(params, sgram, 5);
 imshow(img_sart,[]);
