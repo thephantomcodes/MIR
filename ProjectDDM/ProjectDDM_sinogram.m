@@ -7,9 +7,9 @@ addpath('../toolbox');
 
 params.scanRad = 50;
 params.detLen = 40;
-params.detNum = 256;
-params.viewNum = 256;
-params.pxNum = 256;
+params.detNum = 512;
+params.viewNum = 512;
+params.pxNum = 512;
 params.phantomRad = 10;
 params.rows = 1:params.pxNum;
 params.fieldOfView = 360;
@@ -17,7 +17,7 @@ params.fieldOfView = 360;
 params.rotations = 0:params.fieldOfView/params.viewNum:params.fieldOfView-1/params.viewNum;
 disp(params);
 
-projDisc = 1;
+projDisc = 0;
 
 if projDisc == 1
     tic

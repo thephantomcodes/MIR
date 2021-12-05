@@ -3,9 +3,9 @@ addpath('../toolbox');
 
 params.scanRad = 50;
 params.detLen = 40;
-params.detNum = 512;
-params.viewNum = 512;
-params.pxNum = 512;
+params.detNum = 256;
+params.viewNum = 256;
+params.pxNum = 256;
 params.phantomRad = 10;
 params.rows = 1:params.pxNum;
 params.fieldOfView = 360;
@@ -13,22 +13,23 @@ rotations = 0:params.fieldOfView/params.viewNum:params.fieldOfView-1/params.view
 params.rotations = rotations;
 disp(params);
 
-tic
 img = phantom(params.pxNum);
-sgram = ProjectDDM(params, img);
-toc
+%img = MakeDisc(params.pxNum, 200);
 
-ramp = abs(linspace(-1, 1, params.detNum))';
-ramp = repmat(ramp, [1,params.viewNum]);
+disp("Full Reconstruction");
+tic; sgram = ProjectDDM(params, img); toc;
+tic; sgram_filtered = RampFilter(params, sgram); toc;
+tic; img_fbp_full = BackProjectDDM(params, sgram_filtered); toc;
 
-sgram_filtered = fftshift(fft(sgram,[],1),1);
-sgram_filtered = sgram_filtered .* ramp;
-sgram_filtered = ifftshift(sgram_filtered,1);
-sgram_filtered = real(ifft(sgram_filtered .* ramp,[],1));
+disp("Fiew View Reconstruction");
+params.viewNum = 64;
+rotations = 0:params.fieldOfView/params.viewNum:params.fieldOfView-1/params.viewNum;
+params.rotations = rotations;
+tic; sgram = ProjectDDM(params, img); toc;
+tic; sgram_filtered = RampFilter(params, sgram); toc;
+tic; img_fbp_fiew = BackProjectDDM(params, sgram_filtered); toc;
 
-%imshow(abs(sgram_filtered),[]);
-
-tic
-img_fbp = BackProjectDDM(params, sgram_filtered);
-imshow(img_fbp,[]);
-toc
+subplot(1,2,1); imshow(img_fbp_full,[]);
+title("Full Reconstruction");
+subplot(1,2,2); imshow(img_fbp_fiew,[]);
+title("Fiew View Reconstruction");
