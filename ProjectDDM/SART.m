@@ -12,8 +12,8 @@ for idx = 1:params.viewNum
     Scol = Scol + sum(A,1);
     Srow(:, 1+(idx-1)*params.detNum:idx*params.detNum) = sum(A,2);
 end
-Srow = (1./Srow)';
-Scol = 1./Scol';
+Srow = (1./(Srow + 1e-6))';
+Scol = 1./(Scol + 1e-6)';
 params.rotations = rotations;
 sgram = sgram(:);
 img = zeros(params.pxNum);

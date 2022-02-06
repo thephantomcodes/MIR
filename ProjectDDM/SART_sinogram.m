@@ -4,7 +4,7 @@ addpath('../toolbox');
 params.scanRad = 50;
 params.detLen = 40;
 params.detNum = 256;
-params.viewNum = 256;
+params.viewNum = 64;
 params.pxNum = 256;
 params.phantomRad = 10;
 params.rows = 1:params.pxNum;
